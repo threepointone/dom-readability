@@ -4,9 +4,7 @@ import JSDOMParser from "@mozilla/readability/JSDOMParser";
 import { Readability } from "@mozilla/readability";
 
 export default class Server implements Party.Server {
-  constructor(readonly party: Party.Party) {}
-
-  async onRequest(req: Party.Request): Promise<Response> {
+  static async onFetch(req: Party.Request) {
     const htmlRes = await fetch(
       "https://www.actsnotfacts.com/made/large-language-models"
     );
