@@ -1,30 +1,29 @@
 import type * as Party from "partykit/server";
+// @ts-expect-error - no types available for this module
+import JSDOMParser from "@mozilla/readability/JSDOMParser";
+import { Readability } from "@mozilla/readability";
 
 export default class Server implements Party.Server {
   constructor(readonly party: Party.Party) {}
 
-  onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-    // A websocket just connected!
-    console.log(
-      `Connected:
-  id: ${conn.id}
-  room: ${this.party.id}
-  url: ${new URL(ctx.request.url).pathname}`
+  async onRequest(_req: Party.Request): Promise<Response> {
+    const htmlRes = await fetch(
+      "https://www.actsnotfacts.com/made/large-language-models"
     );
+    const html = await htmlRes.text();
+    // since we don't have a document model in the worker,
+    // we need to manually parse the html string into a document object
+    const document = new JSDOMParser().parse(html);
 
-    // let's send a message to the connection
-    conn.send("hello from server");
-  }
+    // now let's use Readability to extract the article content
+    const reader = new Readability(document);
+    const article = reader.parse();
 
-  onMessage(message: string, sender: Party.Connection) {
-    // let's log the message
-    console.log(`connection ${sender.id} sent message: ${message}`);
-    // as well as broadcast it to all the other connections in the room...
-    this.party.broadcast(
-      `${sender.id}: ${message}`,
-      // ...except for the connection it came from
-      [sender.id]
-    );
+    if (article?.textContent) {
+      return new Response(article.textContent);
+    }
+
+    return new Response("No article found");
   }
 }
 

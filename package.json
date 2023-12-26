@@ -7,9 +7,11 @@
     "deploy": "partykit deploy"
   },
   "dependencies": {
+    "@mozilla/readability": "^0.5.0",
     "partysocket": "0.0.18"
   },
   "devDependencies": {
+    "@types/mozilla__readability": "^0.4.2",
     "partykit": "0.0.54",
     "typescript": "^5.3.3"
   }
