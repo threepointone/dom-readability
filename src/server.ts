@@ -6,14 +6,14 @@ import { Readability } from "@mozilla/readability";
 export default class Server implements Party.Server {
   constructor(readonly party: Party.Party) {}
 
-  async onRequest(_req: Party.Request): Promise<Response> {
+  async onRequest(req: Party.Request): Promise<Response> {
     const htmlRes = await fetch(
       "https://www.actsnotfacts.com/made/large-language-models"
     );
     const html = await htmlRes.text();
     // since we don't have a document model in the worker,
     // we need to manually parse the html string into a document object
-    const document = new JSDOMParser().parse(html);
+    const document = new JSDOMParser().parse(html, req.url);
 
     // now let's use Readability to extract the article content
     const reader = new Readability(document);
